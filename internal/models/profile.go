@@ -23,6 +23,7 @@ type Profile struct {
 
 func (p *Profile) Touch() {
 	p.ProfileRevision++
+	p.ProfileChangesBaseRevision++
 	p.ServerTime = time.Now().UTC().Format("2006-01-02T15:04:05.999Z")
 	for i := range p.ProfileChanges {
 		p.ProfileChanges[i].Profile.Touch()
@@ -52,7 +53,7 @@ type ProfileChangeProfileEntry struct {
 func (p *ProfileChangeProfileEntry) Touch() {
 	p.Updated = time.Now().UTC().Format("2006-01-02T15:04:05.999Z")
 	p.RVN++
-	p.CommandRevision++
+//	p.CommandRevision++
 }
 
 type ProfileStatsAttributes = json.RawMessage

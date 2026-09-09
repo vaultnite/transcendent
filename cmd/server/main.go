@@ -52,7 +52,9 @@ func main() {
     mux.HandleGroup("/caldera", controllers.NewCalderaController())
     mux.HandleGroup("/content", controllers.NewContentController(sp))
     mux.HandleGroup("/datarouter", controllers.NewDataRouterController())
+    mux.HandleGroup("/eulatracking", controllers.NewEULATrackingController())
     mux.HandleGroup("/fortnite", controllers.NewFortniteController(sp))
+    mux.HandleGroup("/friends", controllers.NewFriendsController())
     mux.HandleGroup("/lightswitch", controllers.NewLightSwitchController())
     mux.HandleGroup("/orion", controllers.NewOrionController(sp)) // paragon
     mux.HandleGroup("/waitingroom", controllers.NewWaitingRoomController())

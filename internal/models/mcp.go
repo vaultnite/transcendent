@@ -35,3 +35,35 @@ type VersionCheckResponse struct {
     Type        VersionCheckResponseType `json:"type"`
     AppRedirect string                   `json:"appRedirect,omitempty"`
 }
+
+type Receipt struct {
+    AppStore    string `json:"appStore"`
+    AppStoreID  string `json:"appStoreId"`
+    ReceiptID   string `json:"receiptId"`
+    ReceiptInfo string `json:"receiptInfo"`
+}
+
+type RankedTeamInfo struct {
+    Members         []RankedTeamMemberInfo `json:"members"`
+    SocialPartySize int32                  `json:"socialPartySize"`
+}
+
+type RankedTeamMemberInfo struct {
+    AccountID     string `json:"accountId"`
+    PartyLeaderID string `json:"partyLeaderId"`
+}
+
+type GetTeamEloResponse struct {
+    Rating int32 `json:"rating"`
+}
+
+type WaitTimeEstimate struct {
+    /* these appear to be part of the response orion expects from reading the string dump, ida is being annoying rn so cant rlly be sure */
+    BucketID string `json:"bucketId,omitempty"`
+    HerotID  string `json:"heroId,omitempty"`
+
+    RatingType string `json:"ratingType,omitempty"` // appears to be only present in the ut '/estimate' subpath, and not expected by orion
+
+    AverageWaitTimeSecs float64 `json:"averageWaitTimeSecs"`
+    NumSamples          int     `json:"numSamples"`
+}

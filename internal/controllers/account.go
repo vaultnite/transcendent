@@ -30,6 +30,17 @@ func NewAccountController(db *sql.DB) *AccountController {
 func (c *AccountController) addRoutes() {
     c.HandleFunc("GET /api/version", middleware.NewVersionHandler("com.transcendent.account.public", "transcendent", "Transcendent-Account-Controller"))
 
+    c.HandleFunc("GET /api/epicdomains/ssodomains", func(w http.ResponseWriter, r *http.Request) {
+        w.Header().Set("Content-Type", "application/json")
+        json.NewEncoder(w).Encode([]string{
+            "unrealengine.com",
+            "unrealtournament.com",
+            "fortnite.com",
+            "epicgames.com",
+            "vaultnite.com",
+        })
+    })
+
     c.HandleFunc("POST /api/oauth/token", func(w http.ResponseWriter, r *http.Request) {
         if err := r.ParseForm(); err != nil {
             http.Error(w, err.Error(), http.StatusBadRequest)

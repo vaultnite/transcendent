@@ -4,9 +4,9 @@ vars:
     BUILD_DATE:
         sh: echo {{now | date "2006-01-02T15:04:05Z07:00"}}
     GIT_BRANCH:
-        sh: git symbolic-ref --short -q HEAD || echo "unknown"
+        sh: git symbolic-ref --short -q HEAD || echo unknown
     GIT_COMMIT:
-        sh: git rev-parse --short HEAD 2>/dev/null || echo "unknown"
+        sh: git rev-parse --short HEAD || echo unknown
 
 tasks:
     dev:
@@ -16,7 +16,8 @@ tasks:
                 go run -ldflags
                 "-X main.rootDir={{joinPath .LOCALAPPDATA "transcendent"}}
                 -X github.com/vaultnite/transcendent/internal/buildinfo.buildDateRaw={{.BUILD_DATE}}
-                -X github.com/vaultnite/transcendent/internal/buildinfo.Branch={{.GIT_BRANCH}}"
+                -X github.com/vaultnite/transcendent/internal/buildinfo.Branch={{.GIT_BRANCH}}
+                -X github.com/vaultnite/transcendent/internal/buildinfo.Commit={{.GIT_COMMIT}}"
                 ./cmd/server
     build:
         desc: Build binary for release
@@ -24,6 +25,7 @@ tasks:
             - >-
                 go build -ldflags
                 "-X github.com/vaultnite/transcendent/internal/buildinfo.buildDateRaw={{.BUILD_DATE}}
-                -X github.com/vaultnite/transcendent/internal/buildinfo.Branch={{.GIT_BRANCH}}"
+                -X github.com/vaultnite/transcendent/internal/buildinfo.Branch={{.GIT_BRANCH}}
+                -X github.com/vaultnite/transcendent/internal/buildinfo.Commit={{.GIT_COMMIT}}"
                 -o transcendent.exe
                 ./cmd/server

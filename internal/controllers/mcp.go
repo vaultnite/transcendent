@@ -7,6 +7,7 @@ import (
     "encoding/json"
     "net/http"
     "io"
+    "os"
     "path"
     "time"
 
@@ -33,6 +34,13 @@ func newMCPController(sp storage.Provider, serviceId string) *mcpController {
 }
 
 func (c *mcpController) addRoutes() {
+    c.HandleFunc("GET /api/versioncheck", func(w http.ResponseWriter, r *http.Request) {
+        w.Header().Set("Content-Type", "application/json")
+        json.NewEncoder(w).Encode(&models.VersionCheckResponse{
+            Type: models.VersionCheckResponseTypeNoUpdate,
+        })
+    })
+
     c.HandleFunc("GET /api/v2/versioncheck/{platform}", func(w http.ResponseWriter, r *http.Request) {
         w.Header().Set("Content-Type", "application/json")
         json.NewEncoder(w).Encode(&models.VersionCheckResponse{
@@ -184,12 +192,46 @@ func (c *mcpController) addRoutes() {
     })
 
     c.HandleFunc("POST /api/game/v2/profile/{accountId}/client/{command}", func(w http.ResponseWriter, r *http.Request) {
-        accountId := r.PathValue("accountId")
+//        accountId := r.PathValue("accountId")
 
         w.Header().Set("Content-Type", "application/json")
-        profile := bootstrapProfile("profile0", accountId)
-        profile.Touch()
-        json.NewEncoder(w).Encode(profile)
+//        profile := bootstrapProfile("profile0", accountId)
+//        profile.Touch()
+//        json.NewEncoder(w).Encode(profile)
+
+        data, err := os.ReadFile("E:\\FORTNITE MODDING ARCHIVE\\LawinServer\\profiles\\profile0.json")
+        if err != nil {
+            panic(err)
+        }
+        w.Write(data)
+    })
+
+    c.HandleFunc("GET /api/receipts/v1/account/{accountId}/receipts", func(w http.ResponseWriter, r *http.Request) {
+        w.Header().Set("Content-Type", "application/json")
+        json.NewEncoder(w).Encode(&[]models.Receipt{})
+    })
+
+    c.HandleFunc("GET /api/matchmaking/session/findPlayer/{accountId}", func(w http.ResponseWriter, r *http.Request) {
+        w.Header().Set("Content-Type", "application/json")
+        w.Write([]byte("[]"))
+    })
+
+    // orion & ut
+    c.HandleFunc("POST /api/game/v2/ratings/team/elo/{ratingType}", func(w http.ResponseWriter, r *http.Request) {
+        w.Header().Set("Content-Type", "application/json")
+        json.NewEncoder(w).Encode(&models.GetTeamEloResponse{
+            Rating: 9000,
+        })
+    })
+
+    c.HandleFunc("POST /api/matchmaking/session/matchMakingRequest", func(w http.ResponseWriter, r *http.Request) {
+        w.Header().Set("Content-Type", "application/json")
+        w.Write([]byte("[]"))
+    })
+
+    c.HandleFunc("GET /api/game/v2/wait_times", func(w http.ResponseWriter, r *http.Request) {
+        w.Header().Set("Content-Type", "application/json")
+        json.NewEncoder(w).Encode(&[]models.WaitTimeEstimate{})
     })
 }
 
@@ -208,13 +250,15 @@ func bootstrapProfile(profileId, accountId string) *models.Profile {
 
     changes := make([]models.ProfileChange, 1)
     changes[0] = models.ProfileChange{
+        EnableConstructDelta: true,
         Profile: changeProfile,
     }
 
     profile := &models.Profile{
-        ProfileID:      profileId,
-        ProfileChanges: changes,
-        CreationTime:   nowStr,
+        ProfileID:       profileId,
+        ProfileChanges:  changes,
+        CreationTime:    nowStr,
+        ResponseVersion: 1,
     }
 
     return profile
