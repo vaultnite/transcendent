@@ -5,8 +5,8 @@ import (
     "crypto/sha256"
     "encoding/hex"
     "encoding/json"
-    "net/http"
     "io"
+    "net/http"
     "os"
     "path"
     "time"
@@ -34,24 +34,6 @@ func newMCPController(sp storage.Provider, serviceId string) *mcpController {
 }
 
 func (c *mcpController) addRoutes() {
-    c.HandleFunc("GET /api/versioncheck", func(w http.ResponseWriter, r *http.Request) {
-        w.Header().Set("Content-Type", "application/json")
-        json.NewEncoder(w).Encode(&models.VersionCheckResponse{
-            Type: models.VersionCheckResponseTypeNoUpdate,
-        })
-    })
-
-    c.HandleFunc("GET /api/v2/versioncheck/{platform}", func(w http.ResponseWriter, r *http.Request) {
-        w.Header().Set("Content-Type", "application/json")
-        json.NewEncoder(w).Encode(&models.VersionCheckResponse{
-            Type: models.VersionCheckResponseTypeNoUpdate,
-        })
-    })
-
-    c.HandleFunc("POST /api/game/v2/tryPlayOnPlatform/account/{accountId}", func(w http.ResponseWriter, r *http.Request) {
-        w.Write([]byte("true"))
-    })
-
     c.HandleFunc("GET /api/calendar/v1/timeline", func(w http.ResponseWriter, r *http.Request) {
         data, err := c.sp.ReadFile(path.Join("mcp", c.serviceId, "timeline.json"))
         if err != nil {
@@ -192,12 +174,12 @@ func (c *mcpController) addRoutes() {
     })
 
     c.HandleFunc("POST /api/game/v2/profile/{accountId}/client/{command}", func(w http.ResponseWriter, r *http.Request) {
-//        accountId := r.PathValue("accountId")
+        //        accountId := r.PathValue("accountId")
 
         w.Header().Set("Content-Type", "application/json")
-//        profile := bootstrapProfile("profile0", accountId)
-//        profile.Touch()
-//        json.NewEncoder(w).Encode(profile)
+        //        profile := bootstrapProfile("profile0", accountId)
+        //        profile.Touch()
+        //        json.NewEncoder(w).Encode(profile)
 
         data, err := os.ReadFile("E:\\FORTNITE MODDING ARCHIVE\\LawinServer\\profiles\\profile0.json")
         if err != nil {
@@ -206,9 +188,8 @@ func (c *mcpController) addRoutes() {
         w.Write(data)
     })
 
-    c.HandleFunc("GET /api/receipts/v1/account/{accountId}/receipts", func(w http.ResponseWriter, r *http.Request) {
-        w.Header().Set("Content-Type", "application/json")
-        json.NewEncoder(w).Encode(&[]models.Receipt{})
+    c.HandleFunc("POST /api/game/v2/tryPlayOnPlatform/account/{accountId}", func(w http.ResponseWriter, r *http.Request) {
+        w.Write([]byte("true"))
     })
 
     c.HandleFunc("GET /api/matchmaking/session/findPlayer/{accountId}", func(w http.ResponseWriter, r *http.Request) {
@@ -216,22 +197,35 @@ func (c *mcpController) addRoutes() {
         w.Write([]byte("[]"))
     })
 
-    // orion & ut
-    c.HandleFunc("POST /api/game/v2/ratings/team/elo/{ratingType}", func(w http.ResponseWriter, r *http.Request) {
+    c.HandleFunc("POST /api/matchmaking/session/matchMakingRequest", func(w http.ResponseWriter, r *http.Request) {
         w.Header().Set("Content-Type", "application/json")
-        json.NewEncoder(w).Encode(&models.GetTeamEloResponse{
-            Rating: 9000,
+        res := make([]models.MatchmakingRequestResponseWIP, 1, 1)
+        res[0] = models.MatchmakingRequestResponseWIP{
+            ServerAddress: "127.0.0.1",
+            ServerPort:    80,
+            Attributes:    []byte("{}"),
+        }
+        json.NewEncoder(w).Encode(&res)
+    })
+
+    c.HandleFunc("GET /api/receipts/v1/account/{accountId}/receipts", func(w http.ResponseWriter, r *http.Request) {
+        w.Header().Set("Content-Type", "application/json")
+        json.NewEncoder(w).Encode(&[]models.Receipt{})
+    })
+
+    // older versioncheck, superseeded by at least fn 4.00, present in 2017 orion and possibly ot fn builds (unsure the the response body is the same shape, but using for now)
+    c.HandleFunc("GET /api/versioncheck", func(w http.ResponseWriter, r *http.Request) {
+        w.Header().Set("Content-Type", "application/json")
+        json.NewEncoder(w).Encode(&models.VersionCheckResponse{
+            Type: models.VersionCheckResponseTypeNoUpdate,
         })
     })
 
-    c.HandleFunc("POST /api/matchmaking/session/matchMakingRequest", func(w http.ResponseWriter, r *http.Request) {
+    c.HandleFunc("GET /api/v2/versioncheck/{platform}", func(w http.ResponseWriter, r *http.Request) {
         w.Header().Set("Content-Type", "application/json")
-        w.Write([]byte("[]"))
-    })
-
-    c.HandleFunc("GET /api/game/v2/wait_times", func(w http.ResponseWriter, r *http.Request) {
-        w.Header().Set("Content-Type", "application/json")
-        json.NewEncoder(w).Encode(&[]models.WaitTimeEstimate{})
+        json.NewEncoder(w).Encode(&models.VersionCheckResponse{
+            Type: models.VersionCheckResponseTypeNoUpdate,
+        })
     })
 }
 
@@ -251,7 +245,7 @@ func bootstrapProfile(profileId, accountId string) *models.Profile {
     changes := make([]models.ProfileChange, 1)
     changes[0] = models.ProfileChange{
         EnableConstructDelta: true,
-        Profile: changeProfile,
+        Profile:              changeProfile,
     }
 
     profile := &models.Profile{

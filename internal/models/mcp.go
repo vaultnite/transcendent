@@ -1,5 +1,7 @@
 package models
 
+import "encoding/json"
+
 type APIVersionModule struct {
     CLN       string `json:"cln"`
     Build     string `json:"build"`
@@ -53,17 +55,92 @@ type RankedTeamMemberInfo struct {
     PartyLeaderID string `json:"partyLeaderId"`
 }
 
+type GetAccountMMRResponse struct {
+    Rating         int32 `json:"rating"`
+    NumGamesPlayed int32 `json:"numGamesPlayed"`
+}
+
 type GetTeamEloResponse struct {
     Rating int32 `json:"rating"`
 }
 
+type ReportWaitTimesPayload struct {
+    BucketID            string  `json:"bucketId"`
+    SessionID           string  `json:"sessionId"`
+    PlayerMatchWaitSecs float64 `json:"playerMatchWaitSecs"`
+    TeamMatchWaitSecs   float64 `json:"teamatchWaitSecs"`
+}
+
 type WaitTimeEstimate struct {
-    /* these appear to be part of the response orion expects from reading the string dump, ida is being annoying rn so cant rlly be sure */
-    BucketID string `json:"bucketId,omitempty"`
-    HerotID  string `json:"heroId,omitempty"`
-
-    RatingType string `json:"ratingType,omitempty"` // appears to be only present in the ut '/estimate' subpath, and not expected by orion
-
     AverageWaitTimeSecs float64 `json:"averageWaitTimeSecs"`
     NumSamples          int     `json:"numSamples"`
 }
+
+type WaitTimeEstimateOrion struct {
+    WaitTimeEstimate
+    /* these appear to be part of the response orion expects from reading the string dump, ida is being annoying rn so cant rlly be sure */
+    BucketID string `json:"bucketId"`
+    HeroID   string `json:"heroId"`
+}
+
+type WaitTimeEstimateUT struct {
+    WaitTimeEstimate
+    RatingType string `json:"ratingType"` // appears to be only present in the ut '/estimate' subpath, and not expected by orion
+}
+
+// MatchmakingRequestResponseWIP yoinked from UT4MasterServer, will need to compare with fn and try to get a universal structure sorted.
+type MatchmakingRequestResponseWIP struct {
+    ID                              string                                  `json:"id"`
+    OwnerID                         string                                  `json:"ownerId"`
+    OwnerName                       string                                  `json:"ownerName"`
+    ServerName                      string                                  `json:"serverName"`
+    ServerAddress                   string                                  `json:"serverAddress"`
+    ServerPort                      int                                     `json:"serverPort"`
+    MaxPublicPlayers                int                                     `json:"maxPublicPlayers"`
+    OpenPublicPlayers               int                                     `json:"openPublicPlayers"`
+    MaxPrivatePlayers               int                                     `json:"maxPrivatePlayers"`
+    OpenPrivatePlayers              int                                     `json:"openPrivatePlayers"`
+    Attributes                      MatchmakingRequestResponseWIPAttributes `json:"attributes"`
+    PublicPlayers                   []interface{}                           `json:"publicPlayers"`
+    PrivatePlayers                  []interface{}                           `json:"privatePlayers"`
+    TotalPlayers                    int                                     `json:"totalPlayers"`
+    AllowJoinInProgress             bool                                    `json:"allowJoinInProgress"`
+    ShouldAdvertise                 bool                                    `json:"shouldAdvertise"`
+    IsDedicated                     bool                                    `json:"isDedicated"`
+    UsesStats                       bool                                    `json:"usesStats"`
+    AllowInvites                    bool                                    `json:"allowInvites"`
+    UsesPresence                    bool                                    `json:"usesPresence"`
+    AllowJoinViaPresence            bool                                    `json:"allowJoinViaPresence"`
+    AllowJoinViaPresenceFriendsOnly bool                                    `json:"allowJoinViaPresenceFriendsOnly"`
+    BuildUniqueID                   string                                  `json:"buildUniqueId"`
+    LastUpdated                     string                                  `json:"lastUpdated"`
+    Started                         bool                                    `json:"started"`
+}
+
+type MatchmakingRequestResponseWIPAttributes = json.RawMessage
+
+//    Attributes         struct {
+//        UTSERVERNAMES         string `json:"UT_SERVERNAME_s"`
+//        UTREDTEAMSIZEI        int    `json:"UT_REDTEAMSIZE_i"`
+//        UTNUMMATCHESI         int    `json:"UT_NUMMATCHES_i"`
+//        UTGAMEINSTANCEI       int    `json:"UT_GAMEINSTANCE_i"`
+//        UTMAXSPECTATORSI      int    `json:"UT_MAXSPECTATORS_i"`
+//        BEACONPORTI           int    `json:"BEACONPORT_i"`
+//        UTPLAYERONLINEI       int    `json:"UT_PLAYERONLINE_i"`
+//        UTSERVERVERSIONS      string `json:"UT_SERVERVERSION_s"`
+//        GAMEMODES             string `json:"GAMEMODE_s"`
+//        UTHUBGUIDS            string `json:"UT_HUBGUID_s"`
+//        UTBLUETEAMSIZEI       int    `json:"UT_BLUETEAMSIZE_i"`
+//        UTMATCHSTATES         string `json:"UT_MATCHSTATE_s"`
+//        UTSERVERTRUSTLEVELI   int    `json:"UT_SERVERTRUSTLEVEL_i"`
+//        UTSERVERINSTANCEGUIDS string `json:"UT_SERVERINSTANCEGUID_s"`
+//        UTTRAININGGROUNDB     bool   `json:"UT_TRAININGGROUND_b"`
+//        UTMINELOI             int    `json:"UT_MINELO_i"`
+//        UTMAXELOI             int    `json:"UT_MAXELO_i"`
+//        UTSPECTATORSONLINEI   int    `json:"UT_SPECTATORSONLINE_i"`
+//        UTMAXPLAYERSI         int    `json:"UT_MAXPLAYERS_i"`
+//        UTSERVERMOTDS         string `json:"UT_SERVERMOTD_s"`
+//        MAPNAMES              string `json:"MAPNAME_s"`
+//        UTMATCHDURATIONI      int    `json:"UT_MATCHDURATION_i"`
+//        UTSERVERFLAGSI        int    `json:"UT_SERVERFLAGS_i"`
+//    } `json:"attributes"`
