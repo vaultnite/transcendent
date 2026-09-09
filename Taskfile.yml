@@ -1,0 +1,29 @@
+version: "3"
+
+vars:
+    BUILD_DATE:
+        sh: echo {{now | date "2006-01-02T15:04:05Z07:00"}}
+    GIT_BRANCH:
+        sh: git symbolic-ref --short -q HEAD || echo "unknown"
+    GIT_COMMIT:
+        sh: git rev-parse --short HEAD 2>/dev/null || echo "unknown"
+
+tasks:
+    dev:
+        desc: Alias for go run
+        cmds:
+            - >-
+                go run -ldflags
+                "-X main.rootDir={{joinPath .LOCALAPPDATA "transcendent"}}
+                -X github.com/vaultnite/transcendent/internal/buildinfo.buildDateRaw={{.BUILD_DATE}}
+                -X github.com/vaultnite/transcendent/internal/buildinfo.Branch={{.GIT_BRANCH}}"
+                ./cmd/server
+    build:
+        desc: Build binary for release
+        cmds:
+            - >-
+                go build -ldflags
+                "-X github.com/vaultnite/transcendent/internal/buildinfo.buildDateRaw={{.BUILD_DATE}}
+                -X github.com/vaultnite/transcendent/internal/buildinfo.Branch={{.GIT_BRANCH}}"
+                -o transcendent.exe
+                ./cmd/server
